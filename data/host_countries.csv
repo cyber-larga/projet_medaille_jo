@@ -1,0 +1,25 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2759
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 Year,Season,Host_City,Host_Country,ISO3_Code\
+2000,Summer,Sydney,Australia,AUS\
+2002,Winter,Salt Lake City,United States,USA\
+2004,Summer,Athens,Greece,GRC\
+2006,Winter,Turin,Italy,ITA\
+2008,Summer,Beijing,China,CHN\
+2010,Winter,Vancouver,Canada,CAN\
+2012,Summer,London,United Kingdom,GBR\
+2014,Winter,Sochi,Russia,RUS\
+2016,Summer,Rio de Janeiro,Brazil,BRA\
+2018,Winter,PyeongChang,South Korea,KOR\
+2020,Summer,Tokyo,Japan,JPN\
+2022,Winter,Beijing,China,CHN\
+2024,Summer,Paris,France,FRA\
+2026,Winter,Milan-Cortina,Italy,ITA\
+2028,Summer,Los Angeles,United States,USA\
+2030,Winter,French Alps,France,FRA\
+2032,Summer,Brisbane,Australia,AUS}
