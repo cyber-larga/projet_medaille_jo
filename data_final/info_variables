@@ -8,3 +8,4 @@
 ## - Longitude : Longitude moy du pays
 ## - med_p_m : Nombre de medailles par million d'habitants en 2024 (var explicative)
 ## - medd_p_m_2020 : Nombre de medailles par million d'habitants
+## - country_name : nom des pays
