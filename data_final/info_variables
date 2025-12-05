@@ -1,0 +1,10 @@
+## Jeux de données :
+## - country_code : code IS03 des pays
+## - age_m : age moyen des athletes par pays
+## - moy_gdp13_23 : moyenne du PIB par tete par parité de pouvoir d'achat entre 2013 et 2023
+## - X2024 : population en 2024 (utiliser le log(pop) pour eviter pb mecanique)
+## - moy_health13_23 : moyenne de la part du PIB dedier dans la santé entre 2013 et 2023
+## - Latitude : Latitude moy du pays
+## - Longitude : Longitude moy du pays
+## - med_p_m : Nombre de medailles par million d'habitants en 2024 (var explicative)
+## - medd_p_m_2020 : Nombre de medailles par million d'habitants
