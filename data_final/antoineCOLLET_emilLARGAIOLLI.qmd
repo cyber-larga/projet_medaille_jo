@@ -1,0 +1,231 @@
+---
+title: ""  
+date: "`r Sys.Date()`"
+output:
+  rmdformats::robobook:
+    highlight: kate
+    number_sections: TRUE
+    df_print: paged
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r preparation-donnees, echo=FALSE, warning=FALSE, message=FALSE}
+
+library(ggplot2)
+library(dplyr)
+library(ggrepel)   
+library(ggcorrplot)
+library(stargazer)
+
+df <- read.csv("data_final.csv")
+
+df <- df %>%
+  mutate(
+    Log_GDP = log(moy_gdp13_23),
+    Nord_Sud = ifelse(abs(Latitude) > 30, "Nord", "Sud"),
+    Pays_nord = ifelse(abs(Latitude) > 30, 1, 0),
+    Label_Flag = rank(-med_p_m) <= 5 | country_code == "FRA"
+  )
+
+theme_mas <- theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14, color = "#2c3e50"),
+    plot.subtitle = element_text(size = 11, color = "#7f8c8d"),
+    axis.title = element_text(face = "bold", size = 10),
+    panel.grid.minor = element_blank(),
+    legend.position = "top"
+  )
+```
+
+**COLLET - Antoine**
+
+[**Master 1 MAS - Université de Rennes**](https://eco.univ-rennes.fr/master-mathematiques-appliquees-statistique)
+
+**LARGAIOLLI - Emile**
+
+[**Master 1 MAS - Université Rennes 2**](https://formations.univ-rennes2.fr/fr/formations/master-37/master-mention-mathematiques-appliquees-statistique-parcours-sciences-des-donnees-intelligence-artificielle-JFTJBMKM.html)
+
+# Introduction
+
+Les Jeux Olympiques représentent le summum de la compétition sportive mondiale, un événement où l'idéal de mérite individuel est censé primer. Cependant, à la lecture du tableau des médailles des Jeux de Paris 2024, une réalité différente émerge : la hiérarchie sportive semble étrangement calquée sur la hiérarchie économique et géopolitique mondiale. Si le talent est universellement distribué, les opportunités de le transformer en médaille olympique ne le sont pas.
+
+Contexte et problématique Dans un contexte de mondialisation du sport, la capacité d'une nation à performer aux Jeux Olympiques est devenue un outil de soft power majeur. Pourtant, les déterminants de ce succès restent débattus. S'agit-il uniquement d'une question de démographie (plus de population = plus de talents potentiels) ou de puissance économique (plus de PIB = meilleures infrastructures) ?
+
+La problématique centrale de ce mémoire est la suivante : Dans quelle mesure les facteurs macro-économiques, démographiques et géographiques permettent-ils d'expliquer l'efficacité sportive des nations aux Jeux Olympiques de 2024 ?
+
+Nous nous intéressons ici non pas au nombre total de médailles, qui favorise mécaniquement les géants démographiques, mais à la densité de performance, mesurée par le nombre de médailles rapporté à la population.
+
+Motivation et intérêt du sujet L'intérêt de ce sujet est double. D'un point de vue statistique, la modélisation de la performance olympique présente des défis intéressants : asymétrie des données (beaucoup de nations ne gagnent rien), présence de valeurs aberrantes (micro-états sur-performants) et forte corrélation temporelle.
+
+D'un point de vue économique, comprendre ces déterminants permet de déconstruire le mythe de l'incertitude glorieuse du sport. Si un modèle économétrique peut prédire les résultats avec précision, cela signifie que les inégalités structurelles (richesse, santé, climat) pèsent plus lourd que l'aléa sportif.
+
+Hypothèses de recherche Sur la base de la littérature existante et de nos premières observations, nous formulons les hypothèses suivantes :
+
+H1 (Facteur Économique) : Le PIB par habitant est un déterminant positif de la performance, mais avec des rendements décroissants (effet log-linéaire).
+
+H2 (Inertie) : La performance passée (Jeux de Tokyo 2020) est le meilleur prédicteur de la performance actuelle, témoignant de la rigidité des systèmes sportifs nationaux.
+
+H3 (Fracture Nord/Sud) : À niveau de richesse égal, les pays situés en zone tempérée (Hémisphère Nord) bénéficient d'un avantage structurel (climat, héritage historique) par rapport aux pays de la zone tropicale.
+
+H4 (Jeunesse) : L'âge moyen de la délégation joue un rôle dans l'efficacité : les nations alignant des équipes plus jeunes tendent à sur-performer.
+
+Objectifs et contributions L'objectif de ce projet est de construire un modèle de régression linéaire multiple robuste capable d'expliquer la variance du ratio de médailles par million d'habitants. Notre contribution principale réside dans l'intégration de nouvelles variables explicatives, telles que l'âge moyen des athlètes et une variable géographique climatique, souvent absentes des modèles purement économiques.
+
+Plan de l'étude Ce rapport s'articule autour de trois parties. Premièrement, le cadre méthodologique explicitera notre approche économétrique et la justification du modèle MCO. Deuxièmement, l'analyse des données présentera les statistiques descriptives et les visualisations exploratoires permettant de comprendre la structure de notre échantillon. Enfin, l'analyse et discussion des résultats détaillera les estimations de notre modèle final, validera nos hypothèses et discutera des limites et de la robustesse de nos conclusions.
+
+# Cadre méthodologique
+
+# **Analyse des données**
+
+## Cadre des données
+
+L'essemble de de nos données est sur la periode 2024 dans dans le monde entier. Mis a part le PIB et la part du PIB dédié a la santé qui sont calculé comme la moyenne sur les 10 année avant les jo et les medailles par million d'habitants au jo de Tokyo qui sont calculé en 2020
+
+Les individus utilisé sont les pays qui ont participé au jo de 2020 et 2024
+
+expliquer les variables utilisées, les unités et les sources + Faire un tableau récapitulatif
+
+| Code de la série | Définition                                                                          |   Unité   |                                                          Source |
+|:------------------|------------------|:----------------:|-----------------:|
+| med_p_m          | Nombre de médailles par million d'habitants au jo de 2024                           | Numérique | https://data.education.gouv.fr/ https://www.banquemondiale.org/ |
+| med_p_m2_020     | Nombre de médailles par million d'habitants au jo de 2024                           | Numérique |                                       https://fr.wikipedia.org/ |
+| age_m            | age moyen des athlètes                                                              | Numérique |                                 https://data.education.gouv.fr/ |
+| moy_gdp13_23     | moyenne du PIB constant 2011 par parité de pouvoir d'achat sur la période 2013-2024 | Numérique |                                 https://www.banquemondiale.org/ |
+| X2024            | Nombre d'habitants en 2024                                                          | Numérique |                                 https://www.banquemondiale.org/ |
+| moy_health13_23  | part moyenne du PIB dédié a la santé entre 2013 et 2024                             |   taux    |                                 https://www.banquemondiale.org/ |
+| Latitude         | Latitude des pays                                                                   | Numérique |                                       https://fr.wikipedia.org/ |
+| pays_nord        | pays a une latitude supérieur à 30                                                  |  Binaire  |                                       https://fr.wikipedia.org/ |
+
+## Prétraitement et nettoyage des données
+
+## Analyse descriptive univariée des données
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(df, aes(x = med_p_m)) +
+  geom_histogram(aes(y = ..density..), bins = 20, fill = "#3498db", color = "white", alpha = 0.7) +
+  labs(title = "1. Distribution de la Performance Olympique 2024",
+       x = "Médailles par Million d'habitants", y = "Densité") +
+  theme_mas
+
+```
+
+Sur le graphique 1 est représentée la distribution du nombre de medailles par millions d'habitants. On observe que celle ci est asymetrique et ne suit pas une loi normale. En effet il y a enormement de pays qui ont moins de 5 médailles par million d'habitants. On observe cependant un nombre très élevé en comparaison avce les autres pays de l'échantillon du nombre de médailles par millions pour pays. il s'agit de Grenade qui a plus de 17 médailles par millions d'habitants en 2024. Cette performance s'explique certainement par la faible taille de sa population de 125 mille habitants et le fait que ce pays soit spécialisé dans un nombre très faible de disciplines.
+
+## Analyse descriptive bivariée des données
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(df, aes(x = med_p_m_2020, y = med_p_m)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") + # Ligne x=y
+  geom_point(aes(color = med_p_m > med_p_m_2020), size = 3, alpha = 0.8) +
+  geom_smooth(method = "lm", se = FALSE, color = "#2c3e50", size = 0.5) +
+  geom_text_repel(data = subset(df, Label_Flag | abs(med_p_m - med_p_m_2020) > 2), 
+                  aes(label = country_code), size = 3) +
+  scale_color_manual(values = c("#e74c3c", "#2ecc71"), labels = c("Sous-performance", "Surperformance")) +
+  labs(title = "2. Inertie Olympique : Tokyo 2020 vs Paris 2024",
+       subtitle = "La ligne pointillée représente une performance identique. Vert = Progression.",
+       x = "Médailles/Million (Tokyo 2020)", y = "Médailles/Million (Paris 2024)", color = "Bilan") +
+  theme_mas
+```
+
+Sur le graphique 2 sont représenté le nombre de médailles par million d'habitants pour les jo de Paris 2024 en fonction du nombre de médailles par million d'habitants pour ceux de Tokyo 2020. On observe des pays qui ont superformé et d'autres qui ont sousperformé entre 2020 et 2024. On observe une relation positive enttre la performance en 2020 et 2024. En général les pays ayant performé en 2020 ont aussi performé en 2024. On oberserve tout de meme un pays qui parmi ceux qui ont superformé a plus que doublé sont nombre de médailles par rapport aux jeux de 2020, il s'agit là encore de Grenade.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(df, aes(x = moy_gdp13_23, y = med_p_m)) +
+  geom_point(aes(fill = Nord_Sud), shape = 21, color = "white", alpha = 0.8) +
+  scale_x_log10(labels = scales::dollar_format()) + # Echelle Log pour le PIB
+  geom_smooth(method = "lm", color = "orange", se = FALSE) +
+  geom_text_repel(data = subset(df, Label_Flag), aes(label = country_code), size = 3) +
+  scale_fill_manual(values = c("#34495e", "#e67e22")) +
+  labs(title = "3. L'argent fait-il le bonheur olympique ?",
+       subtitle = "Relation entre le PIB (Log) et la performance relative",
+       x = "PIB Moyen 2013-2023 (Echelle Log)", y = "Médailles par Million") +
+  theme_mas
+```
+
+Sur le graphique 3 on observe une relation légèrement décroissante entre le nombre de médailles par million d'habitants et le le lo du PIB moyen sur la période 2013-2023. Cette relation est peut etre tiré par l'observation extreme de Grenade. Cette relation décroissante semble plus marquée pour les pays du nord que pour les pays du sub ou le nombre de médailles ne semble pas etre différencié par le PIB.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(df, aes(x = age_m, y = med_p_m)) +
+  geom_point(color = "#9b59b6", size = 3, alpha = 0.6) +
+  geom_smooth(method = "lm", color = "black", linetype = "dashed") +
+  geom_text_repel(data = subset(df, med_p_m > 5 | age_m > 30), aes(label = country_code), size = 3) +
+  labs(title = "4. La Jeunesse au Pouvoir ?",
+       subtitle = "Lien entre l'âge moyen de la délégation et la performance",
+       x = "Âge moyen des athlètes", y = "Médailles par Million") +
+  theme_mas
+```
+
+Sur le graphique 4 on observe un nombre plus élevé de médailles pour des athlètes d'age moyen compris en 27 et 29 ans. En dehors de cet intervalle le nombre de médaille par habitants est nettement plus faible. Grenade se distingue encore avec un nombre de médaille important pour un age moyen de ces athlètes autour de 26 ans. Il serait intéressant de construire un nouvelle varibale qui rendrait compte de l'écart absolue entre l'age moyen des athlètes a la median de cet age moyen par pays.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(df, aes(x = Nord_Sud, y = med_p_m, fill = Nord_Sud)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA) +
+  geom_jitter(width = 0.2, alpha = 0.5, color = "black") + # Montre les points individuels
+  scale_fill_manual(values = c("#3498db", "#f1c40f")) +
+  labs(title = "5. Inégalités Nord-Sud",
+       subtitle = "Comparaison des distributions de performance par zone climatique",
+       x = "", y = "Médailles par Million") +
+  theme_mas + theme(legend.position = "none")
+```
+
+Sur le graphique 5 on observe une différence entre le nombre de médailles par habitants dans les pays du nord et le pays du sud. Le nombre moyen de médailles est plus faible dans les pays du sud que dans les pays du nord. La disperssion du nombre de médailles est très faible pour les pays du sudpar rapport a la disperssion des pays du nord.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(df, aes(x = moy_health13_23, y = med_p_m)) +
+  geom_point(aes(fill = Nord_Sud), shape = 21, color = "white", alpha = 0.8) +
+  geom_smooth(method = "lm", color = "orange", se = FALSE) +
+  geom_text_repel(data = subset(df, Label_Flag), aes(label = country_code), size = 3) +
+  scale_fill_manual(values = c("#34495e", "#e67e22")) +
+  labs(title = "6. La santé est-elle imporatnte ?",
+       x = "Pourcentage des dépenses de santé dans le PIB", y = "Médailles par Million") +
+  theme_mas
+```
+
+Sur le graphique 6 on observe un relation croissante entre le nombre de médailles par million d'habitants et la part des dépenses de santé dans le PIB. Plus un pays va dépenser dans la santé au plus ses athlètes vont être performants. Lorsque la part des dépenses dans la santé est mportante on observe une disperssion plus grande de la performance autour de la droite de régression. Cette disperssion plus importante s'observe surtout pour les pays du nord.
+
+# **Analyse et discussion des résultats**
+
+## Modélisation principale
+
+Présentation et interprétation des résultats obtenus : utiliser un tableau récapitulatif des modèles principaux testés
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+model1 <- lm(med_p_m ~ med_p_m_2020 + age_m + 
+                    log(moy_gdp13_23) + log(X2024) + moy_health13_23 + 
+                    Pays_nord, 
+                  data = df)
+
+stargazer(model1, type = "text")
+```
+Les résultats du modele1 montrent que la performance olympique d’un pays en 2024 dépend principalement de sa performance aux Jeux de 2020, qui est de loin le facteur le plus important : les pays qui étaient performants en 2020 le restent en 2024. L’age moyen des athlètes joue aussi un rôle, mais plus faible : les pays plus âgées ont tendance à obtenir un peu moins de médailles par habitant. En revanche, le PIB, la population du pays, la part du PIB consacrée à la santé et le fait d’être un pays du Nord ou du Sud n’ont pas d’effet significatif une fois que l’on tient compte des résultats passés. Ainsi, la performance olympique semble surtout liée à aux performances sportive passé, plus qu’aux caractéristiques économiques ou géographiques des pays.
+
+## Robustesse des résultats
+
+Hypothèses des MCO - nomalités / hétéroscédasticité / ...
+
+## Analyses complémentaires
+
+-   Transformation de variables / effets non linéaires
+
+-   Changement structurel
+
+-   Effets croisés de variables
+
+# **Conclusion générale et perspectives**
+
+Rappel de la problématique et de la méthodologie
+
+Synthèse des résultats principaux
+
+Contributions du mémoire, apports scientifiques et/ou applicatifs
+
+Perspectives d’amélioration ou de recherche future
+
+# Bibliographie - Source des données
+
+-   <https://ec.europa.eu/eurostat/fr/web/main/data>
+
+-   <https://statistiques-locales.insee.fr/#c=home>
+
+\`
